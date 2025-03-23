@@ -1,13 +1,28 @@
 import React from 'react'
-import { Text, View } from 'react-native'
+import { SafeAreaView, StyleSheet, Text } from 'react-native'
+import TheCalender from './components/TheCalender'
 
 function App() {
   console.log("App is Rendering")
   return (
-    <View style={{flex:1,justifyContent:"center",alignItems:"center"}}>
-      <Text style={{color:"black",fontSize:50,fontWeight:"bold"}}>SelfTrack</Text>
-    </View>
+    <SafeAreaView style={style.container}>
+      <TheCalender/>
+    </SafeAreaView>
   )
 }
 
 export default App
+
+const style = StyleSheet.create({
+  container:{
+    flex:1,
+    backgroundColor:"white",
+    justifyContent:"center",
+    alignItems:"center"
+  },
+  text:{
+    color:"black",
+    fontSize:50,
+    fontWeight:"bold"
+  }
+})
