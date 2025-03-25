@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { SafeAreaView, StyleSheet, Text } from 'react-native'
 import LoadView from './components/LoadView'
-import { AddingContextProvider } from './context/addingContext'
+import { AddingContext, AddingContextProvider } from './context/addingContext'
+import AddSubject from './components/AddSubject'
 
 function App() {
   console.log("App is Rendering")
@@ -18,6 +19,6 @@ export default App
 
 const style = StyleSheet.create({
   container:{
-    flex:1,
+    flex:1
   }
 })
