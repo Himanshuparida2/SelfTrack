@@ -5,7 +5,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { CircularProgress } from 'react-native-circular-progress'
 import TheCalendar from './TheCalender'
 import cross from '../Images/close_icon.png';
-import SideBar from './SideBar'
+import { BannerAd, BannerAdSize } from 'react-native-google-mobile-ads';
+
+const adUnitId = 'ca-app-pub-5326098300895323/6175122570';
 
 function Body() {
     const {AddPressed,background,setEdit,setSubject,setAddPressed,opensidebar,setOpenSideBar,setBackground}=useContext(AddingContext)
@@ -116,6 +118,15 @@ function Body() {
                 </TouchableOpacity>
            </View>
         ))):null}
+            <BannerAd
+      unitId={adUnitId}
+      size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+      requestOptions={{
+        networkExtras: {
+          collapsible: 'bottom',
+        },
+      }}
+    />
         {openCalender?
             <View style={{width:'100%',height:'80%',position:'absolute'}}>
                 <TouchableWithoutFeedback onPress={()=>setOpenCalender(false)}>

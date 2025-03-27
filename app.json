@@ -1,4 +1,7 @@
 {
   "name": "selftrack",
-  "displayName": "selftrack"
+  "displayName": "selftrack",
+  "react-native-google-mobile-ads": {
+    "android_app_id": "ca-app-pub-5326098300895323~2580961103"
+  }
 }
