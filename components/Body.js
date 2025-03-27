@@ -1,13 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Image, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
+import { Image, Linking, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 import { AddingContext } from '../context/addingContext'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { CircularProgress } from 'react-native-circular-progress'
 import TheCalendar from './TheCalender'
 import cross from '../Images/close_icon.png';
+import SideBar from './SideBar'
 
 function Body() {
-    const {AddPressed,background,setEdit,setSubject,setAddPressed}=useContext(AddingContext)
+    const {AddPressed,background,setEdit,setSubject,setAddPressed,opensidebar,setOpenSideBar,setBackground}=useContext(AddingContext)
     const [sub,setSub]=useState([])
     const [update,setUpdate]=useState(false)
     const [detailSubject,setDetailSubject]=useState(null)
@@ -81,11 +82,20 @@ function Body() {
         setAddPressed(true)
         setEdit(true)
         setSubject(name)
-      }
+    }
+    const HandleEmail=()=>{
+        const email='himanshuparida27@gmail.com'
+        const subject='Report Issue'
+        const url=`mailto:${email}?subject=${encodeURIComponent(subject)}`
+        Linking.openURL(url).catch(err=>console.error("Error Occured: ",err))
+    }
     
   return (
-    <TouchableWithoutFeedback onPress={()=>{setDetailSubject(null)}}>
-        <View style={[styles.container,{backgroundColor:background.background_color,opacity:background.opacity}]}>
+    <TouchableWithoutFeedback onPress={()=>{setDetailSubject(null);setOpenSideBar(false)}}>
+        <View style={[styles.container,{backgroundColor:background.background_color,opacity:background.opacity},{backgroundColor:opensidebar?'gray':null}]}>
+            {opensidebar?<View style={[styles.sidebar]}>
+                    <TouchableOpacity style={styles.helpbutton} onPress={()=>HandleEmail()}><Text>Get Help?</Text></TouchableOpacity>
+                </View>:null}
             {sub.length > 0 ? (sub.map((subject, index) =>(
             <View key={index} style={[styles.subjects]}>
                 <TouchableOpacity onPress={()=>{OpenCalender(subject.name)}} onLongPress={()=>{handleLongPress(subject.name)}}>
@@ -218,5 +228,33 @@ const styles=new StyleSheet.create({
         position:'absolute',
         right:'7%',
         top:'20%'
+    },
+    sidebar:{
+        borderWidth:1,
+        width:"45%",
+        height:'100%',
+        position:'absolute',
+        zIndex:2,
+        backgroundColor:'white',
+        opacity:1,
+    },
+    helpbutton:{
+        borderWidth:1,
+        width:'50%',
+        height:'5%',
+        justifyContent:'center',
+        alignItems:'center',
+        alignSelf:'center',
+        marginTop:'10%',
+        borderRadius:15,
+        shadowColor:'black',
+        shadowOffset:{
+            width:0,
+            height:10
+        },
+        shadowOpacity:0.3,
+        shadowRadius:15,
+        position:'relative',
+        zIndex:5
     }
 })

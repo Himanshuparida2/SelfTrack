@@ -77,6 +77,7 @@ function TheCalendar() {
       await AsyncStorage.setItem(`${subject}presentDates`,JSON.stringify(updated_present));
       Updated(1,0,1)
     }
+    setShowDetails(false)
   }
   const addAbsent=async(day)=>{
     if(!absentDates.includes(day)){
@@ -91,6 +92,22 @@ function TheCalendar() {
       await AsyncStorage.setItem(`${subject}absentDates`,JSON.stringify(updated_absent));
       Updated(0,1,1)
     }
+    setShowDetails(false)
+  }
+  const clear=async(day)=>{
+    if(absentDates.includes(day)){
+      const updated=absentDates.filter(update=>update!==day)
+      setAbsentDates(updated)
+      await AsyncStorage.setItem(`${subject}absentDates`,JSON.stringify(updated))
+      Updated(0,-1,-1)
+    }
+    if(presentDates.includes(day)){
+      const updated=presentDates.filter(update=>update!==day)
+      setPresentDates(updated)
+      await AsyncStorage.setItem(`${subject}presentDates`,JSON.stringify(updated));
+      Updated(-1,0,-1)
+    }
+    setShowDetails(false)
   }
 
   return (
@@ -123,6 +140,9 @@ function TheCalendar() {
             <TouchableOpacity onPress={()=>addAbsent(selectedDate)}>
             <Text style={styles.details}>Absent</Text>
             </TouchableOpacity>
+            <TouchableOpacity onPress={()=>clear(selectedDate)}>
+            <Text style={styles.details}>Clear</Text>
+            </TouchableOpacity>
           </View>
         )}
     </View>
@@ -144,17 +164,18 @@ const styles = StyleSheet.create({
   moredetails:{
     position:'absolute',
     width:'30%',
-    height:'15%',
+    height:'8%',
     backgroundColor:'white',
-    borderWidth:1,
     justifyContent:'center',
   },
   details:{
     fontSize:20,
     zIndex:11,
     borderWidth:1,
-    height:50,
+    height:'100%',
     textAlign:'center',
-    paddingTop:8.5
+    paddingTop:8.5,
+    borderWidth:1,
+    backgroundColor:'white'
   },
 });

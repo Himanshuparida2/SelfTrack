@@ -8,7 +8,7 @@ import { AddingContext } from '../context/addingContext';
 
 function TopBar() {
 
-  const {AddPressed,setAddPressed,setBackground}=useContext(AddingContext)
+  const {AddPressed,setAddPressed,setBackground,setOpenSideBar,opensidebar}=useContext(AddingContext)
   useEffect(() => {
     if (AddPressed) {
       setBackground({background_color: 'black', opacity: 0.2});
@@ -16,11 +16,17 @@ function TopBar() {
       setBackground({background_color: 'white', opacity: 1});
     }
   }, [AddPressed]);
+  const HandleHamburger=()=>{
+    setOpenSideBar(!opensidebar)
+}
   return (
     <View style={styles.container}>
       <View style={styles.topbar}>
         <Image source={selftrack} style={styles.logo} />
-        <Image source={hamburger} style={styles.hamburger}/>
+        <View style={styles.sidebar}></View>
+        <TouchableOpacity onPress={()=>HandleHamburger()}>
+          <Image source={hamburger} style={styles.hamburger}/>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.addIcon} onPress={()=>setAddPressed(true)}>
           <Image source={add_icon} style={styles.addIcon}/>
         </TouchableOpacity>
@@ -38,7 +44,7 @@ const styles = StyleSheet.create({
   },
   topbar: {
     width: '100%',
-    height: 90,
+    height: '100%',
     backgroundColor: 'white',
     borderWidth: 1,
     borderColor: 'black',
@@ -89,5 +95,5 @@ const styles = StyleSheet.create({
     height: 35,
     top: '33%',
     right: '7%',
-  },
+  }
 });
