@@ -27,7 +27,6 @@ function TheCalendar() {
     let date=new Date();
     date.setDate(date.getDate()+1)
     let newdate=date.toISOString().slice(0,10);
-    console.log(selectedDate)
     if(day.dateString > newdate){
       Alert.alert("Invalid Date", "You can't select a future date")
       return;
@@ -44,7 +43,6 @@ function TheCalendar() {
     if(getdata){
        subinfo=data.find(sub=>sub.name===subject)
        let present,absent,total;
-       console.log(subinfo)
        if(subinfo){
         present=subinfo.present+Number(p)
         absent=subinfo.absent+Number(a)
@@ -133,15 +131,15 @@ function TheCalendar() {
         monthFormat='MMMM yyyy'
         />
         {showDetails && (
-          <View style={styles.moredetails}>
+          <View style={[styles.moredetails]}>
             <TouchableOpacity onPress={()=>addPresent(selectedDate)}>
-            <Text style={styles.details}>Present</Text>
+            <Text style={[styles.details,{backgroundColor:'green',color:'white',fontSize:20,fontWeight:'bold'}]}>Present</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={()=>addAbsent(selectedDate)}>
-            <Text style={styles.details}>Absent</Text>
+            <Text style={[styles.details,{backgroundColor:'red',color:'white',fontSize:20,fontWeight:'bold'}]}>Absent</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={()=>clear(selectedDate)}>
-            <Text style={styles.details}>Clear</Text>
+            <Text style={[styles.details,{backgroundColor:'yellow',color:'black',fontSize:20,fontWeight:'bold'}]}>Clear</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -165,6 +163,8 @@ const styles = StyleSheet.create({
     position:'absolute',
     width:'30%',
     height:'8%',
+    right:'25%',
+    top:"52%",
     backgroundColor:'white',
     justifyContent:'center',
   },
