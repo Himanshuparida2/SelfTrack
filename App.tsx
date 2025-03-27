@@ -1,10 +1,16 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { SafeAreaView, StyleSheet, Text } from 'react-native'
 import LoadView from './components/LoadView'
 import { AddingContext, AddingContextProvider } from './context/addingContext'
-import AddSubject from './components/AddSubject'
+import Orientation from 'react-native-orientation-locker'
 
 function App() {
+  useEffect(()=>{
+    Orientation.lockToPortrait()
+    return()=>{
+      Orientation.unlockAllOrientations()
+    }
+  },[])
   console.log("App is Rendering")
   return (
     <SafeAreaView style={style.container}>

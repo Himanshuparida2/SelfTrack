@@ -1,15 +1,40 @@
 import React, { useContext, useEffect, useState } from 'react';
-import {Image, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
+import {Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import { AddingContext } from '../context/addingContext';
 import cross from '../Images/close_icon.png'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function AddSubject() {
   const [subjecttext, setSubjectText] = useState('');
   const [subjectclass, setSubjectClass] = useState('');
   const [subjectpresent, setSubjectPresent] = useState('');
   const [subjectabsent, setSubjectAbsent] = useState('');
-  const [subjectcriteria, setSubjectCriteria] = useState('');
-  const {AddPressed, setAddPressed} = useContext(AddingContext);
+  const [subjectcriteria, setSubjectCriteria] = useState('75');
+  const {AddPressed, setAddPressed, subject,setSubject,edit,setEdit} = useContext(AddingContext);
+
+  useEffect(()=>{
+    const setupData=async()=>{
+      if(subject){
+        try{
+          const getdata=await AsyncStorage.getItem(`UserSubject`)
+          if(getdata){
+            const data=JSON.parse(getdata).find(i=>i.name===subject)
+            if(data){
+              console.log('Data is : ',data)
+              setSubjectText(data.name)
+              setSubjectAbsent(`${data.absent}`)
+              setSubjectClass(`${data.totalclass}`)
+              setSubjectPresent(`${data.present}`)
+              setSubjectCriteria(`${data.criteria}`)
+            }
+          }
+        }catch(err){
+          console.error(err)
+        }
+      }
+    }
+    setupData()
+  },[subject])
   const HandleSubject = text => {
     setSubjectText(text);
   };
@@ -26,14 +51,85 @@ function AddSubject() {
     setSubjectCriteria(criteria);
   };
   const HandleClose=()=>{
+    setSubject('')
+    setEdit(false)
     setAddPressed(false)
   }
+  let name=subjecttext
+  let present=parseInt(subjectpresent,10)
+  let absent=parseInt(subjectabsent,10)
+  let totalclass=parseInt(subjectclass,10)
+  let criteria=parseInt(subjectcriteria,10)
+  let percentage=totalclass>0?(present/totalclass)*100:0
+
+  const addSubject = async()=>{
+        if(isNaN(present)||isNaN(absent)||isNaN(totalclass)||isNaN(criteria)){
+        Alert.alert('Please Enter Valid Numbers for Classes and Criteria')
+        return
+        }
+        if(totalclass<present || totalclass<absent){
+          Alert.alert("Total Classes Can't Be Less Than Present or Absent classes")
+          return
+        }
+
+        try{
+          if(edit){
+            const getdata=await AsyncStorage.getItem('UserSubject')
+              if(getdata){
+                const data=JSON.parse(getdata)
+                const index=data.findIndex(i=>i.name===subject)
+                if(index!==-1){
+                  data[index]={
+                    ...data[index],
+                    name:subjecttext,
+                    totalclass:subjectclass,
+                    present:subjectpresent,
+                    absent:subjectabsent,
+                    criteria:subjectcriteria,
+                    percent:percentage,
+
+                  }
+                  await AsyncStorage.setItem('UserSubject',JSON.stringify(data))
+                  HandleClose()
+                  setSubject('')
+                  Alert.alert('Data Edited Successfully!!')
+                }
+              }
+            }
+            else{
+          const subject={
+            name:name,
+            present:present,
+            absent:absent,
+            totalclass:totalclass,
+            criteria:criteria,
+            percent:percentage,
+          }
+          const getData=await AsyncStorage.getItem('UserSubject')
+          const Data=getData?JSON.parse(getData):[]
+          Data.push(subject)
+          await AsyncStorage.setItem('UserSubject',JSON.stringify(Data));
+          
+          setSubjectText('')
+          setSubjectAbsent('')
+          setSubjectClass('')
+          setSubjectCriteria('')
+          setSubjectPresent('')
+          console.log(Data)
+          setSubject('')
+          HandleClose()
+        }
+        }catch(e){
+          console.error(e)
+          Alert.alert("Some Error Occured!!")
+        }
+    }
 
   return (
     <View style={styles.container}>
       {AddPressed && (
         <View style={styles.addItem}>
-          <Text style={styles.Header}>Add Subject</Text>
+          <Text style={styles.Header}>{edit?'Edit':'Add'} {subject?subject:'Subject'}</Text>
           <TouchableOpacity  onPress={HandleClose}>
             <Image source={cross} style={styles.cross}/>
           </TouchableOpacity>
@@ -72,8 +168,8 @@ function AddSubject() {
             onChangeText={HandleCriteria}
             placeholder="Enter Attendance Criteria..."
           />
-          <TouchableOpacity style={styles.addbutton}>
-            <Text style={styles.addText}>Add</Text>
+          <TouchableOpacity style={styles.addbutton} onPress={addSubject}>
+            <Text style={styles.addText}>{edit?'Update':'Add'}</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -85,7 +181,7 @@ export default AddSubject;
 const styles = StyleSheet.create({
   container: {
     width: '90%',
-    height: '55%',
+    height: '58%',
     zIndex: 2,
     borderWidth:1,
     left: '5%',
@@ -104,12 +200,12 @@ const styles = StyleSheet.create({
     elevation:5
   },
   Header: {
-    marginTop: 10,
+    marginTop: '2%',
     fontSize: 25,
     fontWeight: 700,
   },
   Subject: {
-    marginTop: 5,
+    marginTop: '2%',
     borderColor: 'black',
     borderWidth: 1,
     borderRadius: 15,
@@ -119,17 +215,17 @@ const styles = StyleSheet.create({
   subjectlabel: {
     fontSize: 20,
     fontWeight: 500,
-    marginLeft: -220,
+    marginLeft: '-58%',
     marginTop: 10,
   },
   totallable: {
     fontSize: 20,
     fontWeight: 500,
-    marginLeft: -225,
-    marginTop: 5,
+    marginLeft: '-59%',
+    marginTop: '2%',
   },
   total: {
-    margintop: 5,
+    margintop: '2%',
     borderColor: 'black',
     borderWidth: 1,
     borderRadius: 15,
@@ -137,7 +233,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   total_present: {
-    marginTop:5,
+    marginTop:'2%',
     borderColor: 'black',
     borderWidth: 1,
     borderRadius: 15,
@@ -147,17 +243,17 @@ const styles = StyleSheet.create({
   presentlable: {
     fontSize: 20,
     fontWeight: 500,
-    marginLeft: -150,
-    marginTop: 5,
+    marginLeft: '-39%',
+    marginTop: '2%',
   },
   absentlable: {
     fontSize: 20,
     fontWeight: 500,
     marginLeft: -150,
-    marginTop: 5,
+    marginTop: '2%',
   },
   total_absent: {
-    marginTop: 5,
+    marginTop: '2%',
     borderColor: 'black',
     borderWidth: 1,
     borderRadius: 15,
@@ -168,10 +264,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 500,
     marginLeft: -150,
-    marginTop: 5,
+    marginTop: '2%',
   },
   criteria: {
-    marginTop: 5,
+    marginTop: '2%',
     borderColor: 'black',
     borderWidth: 1,
     borderRadius: 15,
@@ -179,7 +275,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   addbutton: {
-    marginTop: 10,
+    marginTop: '4%',
     borderWidth: 1,
     width: '30%',
     height: '8%',
@@ -196,8 +292,8 @@ const styles = StyleSheet.create({
     height:15,
     width:15,
     position:'absolute',
-    right:-140,
-    top:-15
+    right:'-40%',
+    top:-10
 
   },
 });

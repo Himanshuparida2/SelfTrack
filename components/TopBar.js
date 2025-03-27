@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     height: 80,
     resizeMode: 'contain',
     position: 'absolute',
-    zIndex: 2,
+    zIndex: 0,
     top: '20%',
     left: '12%',
   },
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   },
   addIcon: {
     position: 'absolute',
-    zIndex: 2,
+    zIndex: 0,
     resizeMode: 'contain',
     width: 25,
     height: 35,
