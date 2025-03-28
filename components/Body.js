@@ -15,13 +15,6 @@ function Body() {
     const [detailSubject,setDetailSubject]=useState(null)
     const [showDetails,setShowDetails]=useState(false)
     const [openCalender,setOpenCalender]=useState()
-    const moveleft=new Animated.Value(-100)
-
-        Animated.timing(moveleft,{
-            toValue:0,
-            duration:500,
-            useNativeDriver:true,
-        }).start()
     
     useEffect(()=>{
         const response=async()=>{
@@ -34,7 +27,6 @@ function Body() {
             }
         }
         response()
-        console.log(sub)
     },[background,AddPressed,update,openCalender])
     const removeSub=async(SUB)=>{
         try{
@@ -90,19 +82,11 @@ function Body() {
         setEdit(true)
         setSubject(name)
     }
-    const HandleEmail=()=>{
-        const email='himanshuparida27@gmail.com'
-        const subject='Report Issue'
-        const url=`mailto:${email}?subject=${encodeURIComponent(subject)}`
-        Linking.openURL(url).catch(err=>console.error("Error Occured: ",err))
-    }
     
   return (
-    <TouchableWithoutFeedback onPress={()=>{setDetailSubject(null);setOpenSideBar(false);setAddPressed(false)}}>
         <SafeAreaView style={[styles.container,{backgroundColor:background.background_color,opacity:background.opacity,backgroundColor:opensidebar?'grey':'white'}]}>
-            {opensidebar?<Animated.View style={[styles.sidebar,{transform:[{ translateX: moveleft }]}]}>
-                    <TouchableOpacity style={styles.helpbutton} onPress={()=>HandleEmail()}><Text>Get Help?</Text></TouchableOpacity>
-                </Animated.View>:null}
+    <TouchableWithoutFeedback onPress={()=>{setDetailSubject(null);setOpenSideBar(false);setAddPressed(false)}}>
+        <ScrollView style={styles.ScrollView} contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={true}>
             {sub.length > 0 ? (sub.map((subject, index) =>(
             <View key={index} style={[styles.subjects]}>
                 <TouchableOpacity onPress={()=>{OpenCalender(subject.name)}} onLongPress={()=>{handleLongPress(subject.name)}}>
@@ -123,6 +107,8 @@ function Body() {
                 </TouchableOpacity>
            </View>
         ))):null}
+        </ScrollView>
+        </TouchableWithoutFeedback>
         <BannerAds/>
         {openCalender?
             <View style={{width:'100%',height:'80%',position:'absolute'}}>
@@ -132,7 +118,6 @@ function Body() {
                 <TheCalendar/>
             </View>:null}
         </SafeAreaView>
-    </TouchableWithoutFeedback>
   )
 }
 
@@ -140,14 +125,20 @@ export default Body
 
 const styles=new StyleSheet.create({
     container:{
-        width:width,
-        height:height
+        flex:1
+    },
+    ScrollView:{
+        flex:1
+    },
+    scrollContainer:{
+        paddingBottom:100,
+        paddingTop:5
     },
     subjects:{
         width:'100%',
-        height:'12%',
+        minHeight:100,
         marginTop:10,
-        borderWidth:1,
+        borderWidth:1.5,
         paddingLeft:10,
         shadowColor:'black',
         shadowOffset:{width:0,height:10},
@@ -237,32 +228,4 @@ const styles=new StyleSheet.create({
         right:'7%',
         marginTop:'20%'
     },
-    sidebar:{
-        borderWidth:1,
-        width:"45%",
-        height:'100%',
-        position:'absolute',
-        zIndex:2,
-        backgroundColor:'white',
-        opacity:1,
-    },
-    helpbutton:{
-        borderWidth:1,
-        width:'50%',
-        height:'5%',
-        justifyContent:'center',
-        alignItems:'center',
-        alignSelf:'center',
-        marginTop:'10%',
-        borderRadius:15,
-        shadowColor:'black',
-        shadowOffset:{
-            width:0,
-            height:10
-        },
-        shadowOpacity:0.3,
-        shadowRadius:15,
-        position:'relative',
-        zIndex:5
-    }
 })

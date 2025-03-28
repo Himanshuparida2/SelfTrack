@@ -21,7 +21,7 @@ function TopBar() {
       <View style={styles.topbar}>
         <Image source={selftrack} style={styles.logo} />
         <View style={styles.sidebar}></View>
-        <TouchableOpacity onPress={()=>{setOpenSideBar(true)}}>
+        <TouchableOpacity style={styles.hamburger_container} onPress={()=>setOpenSideBar(true)}>
           <Image source={hamburger} style={styles.hamburger}/>
         </TouchableOpacity>
         <TouchableOpacity style={styles.addIcon} onPress={()=>{setAddPressed(true)}}>
@@ -76,21 +76,23 @@ const styles = StyleSheet.create({
     marginTop: '20%',
     textAlign: 'center',
   },
-  hamburger:{
+  hamburger_container:{
     position:'absolute',
-    marginTop:'12.5%',
-    left:'3%',
+    marginTop:'10%',
+    left:'2%',
     zIndex: 2,
-    width:32,
-    height:25,
+    padding:10
+  },
+  hamburger:{
+    width:24,
+    height:22,
   },
   addIcon: {
     position: 'absolute',
     zIndex: 0,
-    resizeMode: 'contain',
     width: 25,
-    height: 35,
-    top: '33%',
+    height: 25,
+    top: '36%',
     right: '7%',
   }
 });
