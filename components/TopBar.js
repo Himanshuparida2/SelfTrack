@@ -16,18 +16,15 @@ function TopBar() {
       setBackground({background_color: 'white', opacity: 1});
     }
   }, [AddPressed]);
-  const HandleHamburger=()=>{
-    setOpenSideBar(!opensidebar)
-}
   return (
     <View style={styles.container}>
       <View style={styles.topbar}>
         <Image source={selftrack} style={styles.logo} />
         <View style={styles.sidebar}></View>
-        <TouchableOpacity onPress={()=>HandleHamburger()}>
+        <TouchableOpacity onPress={()=>{setOpenSideBar(true)}}>
           <Image source={hamburger} style={styles.hamburger}/>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.addIcon} onPress={()=>setAddPressed(true)}>
+        <TouchableOpacity style={styles.addIcon} onPress={()=>{setAddPressed(true)}}>
           <Image source={add_icon} style={styles.addIcon}/>
         </TouchableOpacity>
       </View>
@@ -40,13 +37,14 @@ export default TopBar;
 const styles = StyleSheet.create({
   container: {
     width:'100%',
-    height:'10%',
+    height:'12%',
   },
   topbar: {
     width: '100%',
     height: '100%',
     backgroundColor: 'white',
     borderWidth: 1,
+    borderTopWidth:0,
     borderColor: 'black',
     position: 'absolute',
     top: 0,
@@ -80,12 +78,11 @@ const styles = StyleSheet.create({
   },
   hamburger:{
     position:'absolute',
+    marginTop:'12.5%',
+    left:'3%',
     zIndex: 2,
-    resizeMode:'contain',
-    width:40,
-    height:30,
-    marginTop:42,
-    marginLeft:5,
+    width:32,
+    height:25,
   },
   addIcon: {
     position: 'absolute',

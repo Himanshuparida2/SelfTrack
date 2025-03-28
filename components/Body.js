@@ -1,16 +1,15 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Animated, Image, Linking, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
+import { Animated, Dimensions, Image, Linking, SafeAreaView, ScrollView, ScrollViewComponent, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 import { AddingContext } from '../context/addingContext'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { CircularProgress } from 'react-native-circular-progress'
 import TheCalendar from './TheCalender'
 import cross from '../Images/close_icon.png';
-import { BannerAd, BannerAdSize } from 'react-native-google-mobile-ads';
+import BannerAds from './BannerAds.js'
 
-const adUnitId = 'ca-app-pub-5326098300895323/6175122570';
-
+const {width,height}=Dimensions.get('window')
 function Body() {
-    const {AddPressed,background,setEdit,setSubject,setAddPressed,opensidebar,setOpenSideBar,setBackground}=useContext(AddingContext)
+    const {AddPressed,background,setEdit,setSubject,setAddPressed,opensidebar,setOpenSideBar}=useContext(AddingContext)
     const [sub,setSub]=useState([])
     const [update,setUpdate]=useState(false)
     const [detailSubject,setDetailSubject]=useState(null)
@@ -18,12 +17,12 @@ function Body() {
     const [openCalender,setOpenCalender]=useState()
     const moveleft=new Animated.Value(-100)
 
-    Animated.timing(moveleft,{
-        toValue:0,
-        duration:500,
-        useNativeDriver:true,
-    }).start()
-
+        Animated.timing(moveleft,{
+            toValue:0,
+            duration:500,
+            useNativeDriver:true,
+        }).start()
+    
     useEffect(()=>{
         const response=async()=>{
             try{
@@ -99,8 +98,8 @@ function Body() {
     }
     
   return (
-    <TouchableWithoutFeedback onPress={()=>{setDetailSubject(null);setOpenSideBar(false)}}>
-        <View style={[styles.container,{backgroundColor:background.background_color,opacity:background.opacity},{backgroundColor:opensidebar?'gray':null}]}>
+    <TouchableWithoutFeedback onPress={()=>{setDetailSubject(null);setOpenSideBar(false);setAddPressed(false)}}>
+        <SafeAreaView style={[styles.container,{backgroundColor:background.background_color,opacity:background.opacity,backgroundColor:opensidebar?'grey':'white'}]}>
             {opensidebar?<Animated.View style={[styles.sidebar,{transform:[{ translateX: moveleft }]}]}>
                     <TouchableOpacity style={styles.helpbutton} onPress={()=>HandleEmail()}><Text>Get Help?</Text></TouchableOpacity>
                 </Animated.View>:null}
@@ -119,28 +118,20 @@ function Body() {
                 <Text style={styles.total}>Total : {subject.totalclass}</Text>
                 <Text style={styles.criteria}>Criteria : {subject.criteria}%</Text>
                 <Text style={styles.optional}>{subject.percent >= 75 ? `Can Skip :${bunk(subject.present,subject.totalclass,subject.criteria)}` : `Need More : ${reqclass(subject.present, subject.totalclass, subject.criteria)}`}</Text>
-                <Text style={[styles.percentage,{fontSize: Math.floor(subject.percent) === 100 ? 12 : (Math.floor(subject.percent) < 10 ? 15 : 13),right: Math.floor(subject.percent) < 10 ? '7%' : (Math.floor(subject.percent) === 100 ? '6.3%' : '6.5%'),top:Math.floor(subject.percent)<10?'109%':'115%'}]}>{Math.floor(subject.percent)}%</Text>
+                <Text style={[styles.percentage,{fontSize: Math.floor(subject.percent) === 100 ? 11 : (Math.floor(subject.percent) < 10 ? 15 : 13),right: Math.floor(subject.percent) < 10 ? '7%' : (Math.floor(subject.percent) === 100 ? '6.3%' : '6.5%'),top:Math.floor(subject.percent)<10?'109%':'115%'}]}>{Math.floor(subject.percent)}%</Text>
                 <CircularProgress width={10} size={50} fill={subject.percent} rotation={0} tintColor={subject.percent>=75?'#10f85a':'#f34b0c'} backgroundColor='black' arcSweepAngle={360} lineCap='round' showsText={true} style={styles.bar}/>
                 </TouchableOpacity>
            </View>
         ))):null}
-            <BannerAd
-      unitId={adUnitId}
-      size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-      requestOptions={{
-        networkExtras: {
-          collapsible: 'bottom',
-        },
-      }}
-    />
+        <BannerAds/>
         {openCalender?
             <View style={{width:'100%',height:'80%',position:'absolute'}}>
-                <TouchableWithoutFeedback onPress={()=>setOpenCalender(false)}>
+                <TouchableWithoutFeedback onPress={()=>{setOpenCalender(false)}}>
                     <Image source={cross} style={styles.cross}/>
                 </TouchableWithoutFeedback>
                 <TheCalendar/>
             </View>:null}
-        </View>
+        </SafeAreaView>
     </TouchableWithoutFeedback>
   )
 }
@@ -149,12 +140,12 @@ export default Body
 
 const styles=new StyleSheet.create({
     container:{
-        width:'100%',
-        height:'90%'
+        width:width,
+        height:height
     },
     subjects:{
         width:'100%',
-        height:'10%',
+        height:'12%',
         marginTop:10,
         borderWidth:1,
         paddingLeft:10,
@@ -172,24 +163,24 @@ const styles=new StyleSheet.create({
     present:{
         fontSize:16,
         position:'absolute',
-        top:27
+        marginTop:27
     },
     absent:{
         fontSize:16,
         position:'absolute',
-        top:47
+        marginTop:48
     },
     total:{
         fontSize:16,
         position:'absolute',
-        top:27,
-        left:100
+        marginTop:27,
+        left:108,
     },
     criteria:{
         fontSize:16,
         position:'absolute',
-        top:47,
-        left:100
+        marginTop:48,
+        left:108
     },
     bar:{
         position:'absolute',
@@ -204,9 +195,9 @@ const styles=new StyleSheet.create({
     },
     percentage:{
         position:'absolute',
-        right:'6.5%',
-        top:'115%',
-        fontSize:13,
+        marginRight:'0.5%',
+        marginTop:'2%',
+        fontSize:12,
         fontWeight:600
     },
     option:{
@@ -244,7 +235,7 @@ const styles=new StyleSheet.create({
         height:20,
         position:'absolute',
         right:'7%',
-        top:'20%'
+        marginTop:'20%'
     },
     sidebar:{
         borderWidth:1,

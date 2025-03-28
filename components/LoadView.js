@@ -27,7 +27,7 @@ function LoadView() {
         useNativeDriver:true
       }).start()
       Animated.timing(moveRight,{
-        toValue:40,
+        toValue:35,
         duration:1000,
         useNativeDriver:true
       }).start()
@@ -71,8 +71,8 @@ const style=StyleSheet.create({
     position:'absolute',
     justifyContent:'center',
     alignSelf:'center',
-    width:300,
-    height:70,
+    width:270,
+    height:60,
     zIndex:1,
   },
   logo:{

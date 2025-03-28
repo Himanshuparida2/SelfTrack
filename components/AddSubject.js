@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import {Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
+import {Alert, Image, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import { AddingContext } from '../context/addingContext';
 import cross from '../Images/close_icon.png'
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -126,11 +126,11 @@ function AddSubject() {
     }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {AddPressed && (
         <View style={styles.addItem}>
           <Text style={styles.Header}>{edit?'Edit':'Add'} {subject?subject:'Subject'}</Text>
-          <TouchableOpacity  onPress={HandleClose}>
+          <TouchableOpacity  onPress={()=>{HandleClose(),setAddPressed(false)}}>
             <Image source={cross} style={styles.cross}/>
           </TouchableOpacity>
           <Text style={styles.subjectlabel}>Subject Name</Text>
@@ -173,19 +173,19 @@ function AddSubject() {
           </TouchableOpacity>
         </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 
 export default AddSubject;
 const styles = StyleSheet.create({
   container: {
-    width: '90%',
-    height: '60%',
+    width: '95%',
+    height: '75%',
     zIndex: 2,
     borderWidth:1,
-    left: '5%',
-    top: '20%',
+    left: '2%',
+    top: '15%',
     position:'absolute'
   },
   addItem: {
@@ -280,6 +280,7 @@ const styles = StyleSheet.create({
     width: '30%',
     height: '8%',
     alignItems: 'center',
+    justifyContent:'center',
     borderRadius: 15,
     padding: 4,
   },
@@ -289,11 +290,10 @@ const styles = StyleSheet.create({
     fontStyle: 'bold',
   },
   cross:{
-    height:15,
-    width:15,
+    height:20,
+    width:20,
     position:'absolute',
-    right:'-40%',
-    top:-10
-
+    right:'-42%',
+    marginTop:'-1%'
   },
 });

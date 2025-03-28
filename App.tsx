@@ -1,8 +1,10 @@
 import React, { useContext, useEffect } from 'react'
-import { SafeAreaView, StyleSheet, Text } from 'react-native'
+import { Dimensions, SafeAreaView, StyleSheet, Text } from 'react-native'
 import LoadView from './components/LoadView'
 import { AddingContext, AddingContextProvider } from './context/addingContext'
 import Orientation from 'react-native-orientation-locker'
+
+const {width, height}=Dimensions.get('window')
 
 function App() {
   useEffect(()=>{
@@ -25,6 +27,8 @@ export default App
 
 const style = StyleSheet.create({
   container:{
-    flex:1
+    flex:1,
+    width:width,
+    height:height
   }
 })
