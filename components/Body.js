@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Image, Linking, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
+import { Animated, Image, Linking, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 import { AddingContext } from '../context/addingContext'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { CircularProgress } from 'react-native-circular-progress'
@@ -16,6 +16,13 @@ function Body() {
     const [detailSubject,setDetailSubject]=useState(null)
     const [showDetails,setShowDetails]=useState(false)
     const [openCalender,setOpenCalender]=useState()
+    const moveleft=new Animated.Value(-100)
+
+    Animated.timing(moveleft,{
+        toValue:0,
+        duration:500,
+        useNativeDriver:true,
+    }).start()
 
     useEffect(()=>{
         console.log('background Changed',background)
@@ -95,9 +102,9 @@ function Body() {
   return (
     <TouchableWithoutFeedback onPress={()=>{setDetailSubject(null);setOpenSideBar(false)}}>
         <View style={[styles.container,{backgroundColor:background.background_color,opacity:background.opacity},{backgroundColor:opensidebar?'gray':null}]}>
-            {opensidebar?<View style={[styles.sidebar]}>
+            {opensidebar?<Animated.View style={[styles.sidebar,{transform:[{ translateX: moveleft }]}]}>
                     <TouchableOpacity style={styles.helpbutton} onPress={()=>HandleEmail()}><Text>Get Help?</Text></TouchableOpacity>
-                </View>:null}
+                </Animated.View>:null}
             {sub.length > 0 ? (sub.map((subject, index) =>(
             <View key={index} style={[styles.subjects]}>
                 <TouchableOpacity onPress={()=>{OpenCalender(subject.name)}} onLongPress={()=>{handleLongPress(subject.name)}}>
