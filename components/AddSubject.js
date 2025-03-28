@@ -181,7 +181,7 @@ export default AddSubject;
 const styles = StyleSheet.create({
   container: {
     width: '90%',
-    height: '58%',
+    height: '60%',
     zIndex: 2,
     borderWidth:1,
     left: '5%',
@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   addbutton: {
-    marginTop: '4%',
+    marginTop: '3%',
     borderWidth: 1,
     width: '30%',
     height: '8%',

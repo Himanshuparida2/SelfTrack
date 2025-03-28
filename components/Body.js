@@ -25,7 +25,6 @@ function Body() {
     }).start()
 
     useEffect(()=>{
-        console.log('background Changed',background)
         const response=async()=>{
             try{
                 const getData=await AsyncStorage.getItem('UserSubject')

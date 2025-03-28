@@ -17,7 +17,7 @@ function LoadView() {
       , 1500);
 
       Animated.timing(moveLeft,{
-        toValue:-160,
+        toValue:-140,
         duration:1000,
         useNativeDriver:true,
       }).start();
@@ -71,8 +71,8 @@ const style=StyleSheet.create({
     position:'absolute',
     justifyContent:'center',
     alignSelf:'center',
-    width:320,
-    height:80,
+    width:300,
+    height:70,
     zIndex:1,
   },
   logo:{
