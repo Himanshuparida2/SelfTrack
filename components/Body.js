@@ -181,13 +181,13 @@ const styles=new StyleSheet.create({
     optional:{
         position:'absolute',
         top:27,
-        right:90,
+        right:84,
         fontSize:15
     },
     percentage:{
         position:'absolute',
         marginRight:'0.5%',
-        marginTop:'2%',
+        marginTop:'140%',
         fontSize:12,
         fontWeight:600
     },
