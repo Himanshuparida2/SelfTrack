@@ -136,7 +136,7 @@ const styles=new StyleSheet.create({
     },
     subjects:{
         width:'100%',
-        minHeight:100,
+        minHeight:110,
         marginTop:10,
         borderWidth:1.5,
         paddingLeft:10,
@@ -180,8 +180,7 @@ const styles=new StyleSheet.create({
     },
     optional:{
         position:'absolute',
-        top:27,
-        right:84,
+        top:72,
         fontSize:15
     },
     percentage:{
