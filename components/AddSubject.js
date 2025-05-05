@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Alert, Image, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { AddingContext } from '../context/addingContext';
 import cross from '../Images/close_icon.png';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import SQLite from 'react-native-sqlite-storage';
 
 function AddSubject() {
   const [subjecttext, setSubjectText] = useState('');
@@ -12,21 +12,44 @@ function AddSubject() {
   const [subjectcriteria, setSubjectCriteria] = useState('75');
   const { AddPressed, setAddPressed, subject, setSubject, edit, setEdit } = useContext(AddingContext);
 
+  const db = SQLite.openDatabase({ name: 'selftrack.db', location: 'default' });
+  db.transaction(tx => {
+    tx.executeSql(
+      'CREATE TABLE IF NOT EXISTS UserSubject (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE, totalclass INTEGER, present INTEGER, absent INTEGER, criteria INTEGER, percent REAL)',
+      [],
+      () => {
+        console.log('Table created successfully');
+      },
+      error => {
+        console.error('Error creating table:', error);
+      }
+    );
+  });
   useEffect(() => {
     const setupData = async () => {
       if (subject) {
         try {
-          const getdata = await AsyncStorage.getItem('UserSubject');
-          if (getdata) {
-            const data = JSON.parse(getdata).find(i => i.name === subject);
-            if (data) {
-              setSubjectText(data.name);
-              setSubjectAbsent(`${data.absent}`);
-              setSubjectClass(`${data.totalclass}`);
-              setSubjectPresent(`${data.present}`);
-              setSubjectCriteria(`${data.criteria}`);
-            }
-          }
+          db.transaction(tx => {
+            tx.executeSql(
+              'SELECT * FROM UserSubject WHERE name=?',
+              [subject],
+              (_, results) => {
+                if (results.rows.length > 0) {
+                  const data = results.rows.item(0);
+                  setSubjectText(data.name);
+                  setSubjectClass(data.totalclass);
+                  setSubjectPresent(data.present);
+                  setSubjectAbsent(data.absent);
+                  setSubjectCriteria(data.criteria);
+                } else {
+                  console.log('No data found');
+                }
+              },
+              error => {
+                console.error('Error fetching data:', error);
+              }
+            );
+          });
         } catch (err) {
           console.error(err);
         }
@@ -59,39 +82,33 @@ function AddSubject() {
 
     try {
       if (edit) {
-        const getdata = await AsyncStorage.getItem('UserSubject');
-        if (getdata) {
-          const data = JSON.parse(getdata);
-          const index = data.findIndex(i => i.name === subject);
-          if (index !== -1) {
-            data[index] = {
-              ...data[index],
-              name: subjecttext,
-              totalclass: subjectclass,
-              present: subjectpresent,
-              absent: subjectabsent,
-              criteria: subjectcriteria,
-              percent: percentage,
-            };
-            await AsyncStorage.setItem('UserSubject', JSON.stringify(data));
-            HandleClose();
-            Alert.alert('Data Edited Successfully!!');
-          }
-        }
+        db.transaction(tx => {
+          tx.executeSql(
+            'UPDATE UserSubject SET name=?, absent=?, totalclass=?, present=?, criteria=?, percent=? WHERE name=?',
+            [subjecttext, subjectabsent, subjectclass, subjectpresent, subjectcriteria, percentage, subject],
+            () => {
+              console.log('Data updated successfully');
+            },
+            error => {
+              console.error('Error updating data:', error);
+            }
+          );
+        });
+        Alert.alert('Data Edited Successfully!!');
       } else {
-        const newSubject = {
-          name: subjecttext,
-          present: present,
-          absent: absent,
-          totalclass: totalclass,
-          criteria: criteria,
-          percent: percentage,
-        };
-        const getData = await AsyncStorage.getItem('UserSubject');
-        const Data = getData ? JSON.parse(getData) : [];
-        Data.push(newSubject);
-        await AsyncStorage.setItem('UserSubject', JSON.stringify(Data));
-
+        db.transaction(tx=>{
+          tx.executeSql(
+          'INSERT INTO UserSubject (name, absent, totalclass, present, criteria, percent) VALUES (?, ?, ?, ?, ?, ?)',
+          [subjecttext, subjectabsent, subjectclass, subjectpresent, subjectcriteria, percentage],
+          () => {
+            console.log('Data inserted successfully');
+          },
+          error => {
+            console.error('Error inserting data:', error);
+          }
+        );
+      });
+        Alert.alert('Data Added Successfully!!');
         setSubjectText('');
         setSubjectAbsent('');
         setSubjectClass('');

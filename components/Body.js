@@ -1,13 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Animated, Dimensions, Image, Linking, SafeAreaView, ScrollView, ScrollViewComponent, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
+import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 import { AddingContext } from '../context/addingContext'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { CircularProgress } from 'react-native-circular-progress'
+import SQLite from 'react-native-sqlite-storage'
 import TheCalendar from './TheCalender'
 import cross from '../Images/close_icon.png';
 import BannerAds from './BannerAds.js'
 
-const {width,height}=Dimensions.get('window')
 function Body() {
     const {AddPressed,background,setEdit,setSubject,setAddPressed,opensidebar,setOpenSideBar}=useContext(AddingContext)
     const [sub,setSub]=useState([])
@@ -15,13 +14,41 @@ function Body() {
     const [detailSubject,setDetailSubject]=useState(null)
     const [showDetails,setShowDetails]=useState(false)
     const [openCalender,setOpenCalender]=useState()
-    
+
+    const db=SQLite.openDatabase({name:'selftrack.db',location:'default'})
+    db.transaction(tx=>{
+        tx.executeSql(
+            'CREATE TABLE IF NOT EXISTS UserSubject (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE, totalclass INTEGER, present INTEGER, absent INTEGER, criteria INTEGER, percent REAL)',
+            [],
+            ()=>{
+                console.log('Table created successfully')
+            },
+            error=>{
+                console.error('Error creating table:',error)
+            }
+        )
+    })
     useEffect(()=>{
         const response=async()=>{
             try{
-                const getData=await AsyncStorage.getItem('UserSubject')
-                const Data=getData?JSON.parse(getData):[]
-                setSub(Data)
+                db.transaction(tx=>{
+                    tx.executeSql(
+                        'SELECT * FROM UserSubject',
+                        [],
+                        (_,results)=>{
+                            const data=[]
+                            for(let i=0;i<results.rows.length;i++){
+                                data.push(results.rows.item(i))
+                            }
+                            console.log('Data fetched:',data)
+                            setSub(data)
+                        },
+                        error=>{
+                            console.error('Error fetching data:',error)
+                        }
+                    )
+                }
+                )
             }catch(err){
                 console.error(err)
             }
@@ -30,12 +57,16 @@ function Body() {
     },[background,AddPressed,update,openCalender])
     const removeSub=async(SUB)=>{
         try{
-            const getData=await AsyncStorage.getItem('UserSubject')
-            const Data=getData?JSON.parse(getData):[]
-            const UpdatedData=Data.filter(i=>i.name!==SUB)
-            await AsyncStorage.setItem('UserSubject',JSON.stringify(UpdatedData));
-            await AsyncStorage.removeItem(`${SUB}presentDates`)
-            await AsyncStorage.removeItem(`${SUB}absentDates`)
+            db.transaction(tx=>{
+                tx.executeSql(
+                    'DELETE FROM UserSubject WHERE name=?',
+                    [SUB],
+                    (_,results)=>{
+                        console.log('Data Deleted:',results)
+                        setSub(prevSub=>prevSub.filter(i=>i.name!=SUB))
+                    }
+                )
+            })
             setUpdate(true)
         }catch(err){
             console.error(err)

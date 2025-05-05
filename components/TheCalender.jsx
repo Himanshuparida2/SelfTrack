@@ -1,8 +1,8 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useContext, useEffect, useState } from 'react';
-import { View, StyleSheet, Alert, TouchableWithoutFeedback, Text, Image, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Alert, TouchableWithoutFeedback, Text, TouchableOpacity } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { AddingContext } from '../context/addingContext';
+import SQLite from 'react-native-sqlite-storage';
 
 function TheCalendar() {
   const [showDetails,setShowDetails]=useState(false);
@@ -10,24 +10,67 @@ function TheCalendar() {
   const [presentDates,setPresentDates]=useState([])
   const [absentDates,setAbsentDates]=useState([])
   const {subject,setSubject}=useContext(AddingContext);
+  const db=SQLite.openDatabase({name:'selftrack.db',location:'default'})
+  useEffect(() => {
+    async function getData() {
+      db.transaction(tx => {
+        // Create tables
+        tx.executeSql(
+          `CREATE TABLE IF NOT EXISTS ${subject}presentDates 
+           (id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT UNIQUE)`,
+          [],
+          (_,results) => console.log('Present table created',results.rows.length),
+          error => console.log('Error creating present table', error)
+        );
+        
+        tx.executeSql(
+          `CREATE TABLE IF NOT EXISTS ${subject}absentDates 
+           (id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT UNIQUE)`,
+          [],
+          () => console.log('Absent table created'),
+          error => console.log('Error creating absent table', error)
+        );
   
-  useEffect(()=>{
-    async function getData(){
-      const getpresentdata = await AsyncStorage.getItem(`${subject}presentDates`)
-      const presentdata=getpresentdata?JSON.parse(getpresentdata):[]
-      setPresentDates(presentdata)
-      const getabsentdata=await AsyncStorage.getItem(`${subject}absentDates`)
-      const absentdata=getabsentdata?JSON.parse(getabsentdata):[]
-      setAbsentDates(absentdata)
-    }
-    getData()
-  },[subject,presentDates,absentDates])
+        // Fetch present dates
+        tx.executeSql(
+          `SELECT date FROM ${subject}presentDates`,
+          [],
+          (_, results) => {
+            const dates = [];
+            for (let i = 0; i < results.rows.length; i++) {
+              dates.push(results.rows.item(i).date);
+            }
+            setPresentDates(dates);
+          },
+          error => console.log('Error fetching present dates', error)
+        );
+  
+        // Fetch absent dates
+        tx.executeSql(
+          `SELECT date FROM ${subject}absentDates`,
+          [],
+          (_, results) => {
+            const dates = [];
+            for (let i = 0; i < results.rows.length; i++) {
+              dates.push(results.rows.item(i).date);
+            }
+            setAbsentDates(dates);
+          },
+          error => console.log('Error fetching absent dates', error)
+        );
+      });
+    };
+    getData();
+  }, [subject]);
+  useEffect(() => {}, [absentDates, presentDates]);
+  
 
   const handleClick=(day)=>{
     let date=new Date();
     date.setDate(date.getDate()+1)
     let newdate=date.toISOString().slice(0,10);
     if(day.dateString > newdate){
+      setShowDetails(false)
       Alert.alert("Invalid Date", "You can't select a future date")
       return;
     }
@@ -35,78 +78,121 @@ function TheCalendar() {
       setSelectedDate(`${day.dateString}`);
     }
   }
-  async function Updated(p,a,t){
+  async function Updated(p,a,t){ //Updated(present,absent,total)
     try{
-    const getdata=await AsyncStorage.getItem('UserSubject')
-    let data=getdata?JSON.parse(getdata):[]
-    let subinfo
-    if(getdata){
-       subinfo=data.find(sub=>sub.name===subject)
-       let present,absent,total;
-       if(subinfo){
-        present=subinfo.present+Number(p)
-        absent=subinfo.absent+Number(a)
-        total=subinfo.totalclass+Number(t)
-        subinfo.present=present
-        subinfo.absent=absent
-        subinfo.totalclass=total
-        const percent=(subinfo.present/subinfo.totalclass)*100
-        subinfo.percent=percent
-        await AsyncStorage.setItem('UserSubject',JSON.stringify(data));
-      }
-  }
-}catch(err){
+      db.transaction(tx=>{
+        tx.executeSql(
+          `UPDATE UserSubject SET present=present+?, absent=absent+?, totalclass=totalclass+? WHERE name=?`,
+          [p,a,t,subject],
+          (_,results)=>{
+            console.log('Data updated:',results)
+          },
+          error=>{
+            console.error('Error updating data:',error)
+          }
+        )
+      })
+  }catch(err){
   console.error(err)
-}
+  }
 }
   const onclick=()=>{
       setShowDetails(true)
   }
-  const addPresent=async(day)=>{
-    if(!presentDates.includes(day)){
-      if(absentDates.includes(day)){
-        const updated=absentDates.filter(update=>update!==day)
-        setAbsentDates(updated)
-        await AsyncStorage.setItem(`${subject}absentDates`,JSON.stringify(updated))
-        Updated(0,-1,-1)
+  const addPresent = async (day) => {
+    if (!presentDates.includes(day)) {
+      if (absentDates.includes(day)) {
+        const updated = absentDates.filter(update => update !== day);
+        setAbsentDates(updated);
+        db.transaction(tx => {
+          tx.executeSql(
+            `DELETE FROM ${subject}absentDates WHERE date=?`,
+            [day],
+            (_, results) => console.log('Absent Data deleted:', results.rows),
+            error => console.error('Error deleting data:', error)
+          );
+        });
+        Updated(0, -1, -1);
       }
-      const updated_present=[...presentDates,day];
-      setPresentDates(updated_present)
-      await AsyncStorage.setItem(`${subject}presentDates`,JSON.stringify(updated_present));
-      Updated(1,0,1)
+  
+      const updated_present = [...presentDates, day];
+      setPresentDates(updated_present);
+      db.transaction(tx => {
+        tx.executeSql(
+          `INSERT INTO ${subject}presentDates (date) VALUES (?)`,
+          [day],
+          (_, results) => console.log('Present Data inserted'),
+          error => console.error('Error inserting data:', error)
+        );
+      });
+      Updated(1, 0, 1);
     }
-    setShowDetails(false)
-  }
-  const addAbsent=async(day)=>{
-    if(!absentDates.includes(day)){
-      if(presentDates.includes(day)){
-        const updated=presentDates.filter(update=>update!==day)
-        setPresentDates(updated)
-        await AsyncStorage.setItem(`${subject}presentDates`,JSON.stringify(updated));
-        Updated(-1,0,-1)
+    setShowDetails(false);
+  };
+  
+  const addAbsent = async (day) => {
+    if (!absentDates.includes(day)) {
+      if (presentDates.includes(day)) {
+        const updated = presentDates.filter(update => update !== day);
+        setPresentDates(updated);
+        db.transaction(tx => {
+          tx.executeSql(
+            `DELETE FROM ${subject}presentDates WHERE date=?`,
+            [day],
+            (_, results) => console.log('Present Data deleted:', results),
+            error => console.error('Error deleting data:', error)
+          );
+        });
+        Updated(-1, 0, -1);
       }
-      const updated_absent=[...absentDates,day]
+  
+      const updated_absent = [...absentDates, day];
       setAbsentDates(updated_absent);
-      await AsyncStorage.setItem(`${subject}absentDates`,JSON.stringify(updated_absent));
-      Updated(0,1,1)
+      db.transaction(tx => {
+        tx.executeSql(
+          `INSERT INTO ${subject}absentDates (date) VALUES (?)`,
+          [day],
+          (_, results) => console.log('Absent Data inserted:', results),
+          error => console.error('Error inserting data:', error)
+        );
+      });
+      Updated(0, 1, 1);
     }
-    setShowDetails(false)
-  }
-  const clear=async(day)=>{
-    if(absentDates.includes(day)){
-      const updated=absentDates.filter(update=>update!==day)
-      setAbsentDates(updated)
-      await AsyncStorage.setItem(`${subject}absentDates`,JSON.stringify(updated))
-      Updated(0,-1,-1)
+    setShowDetails(false);
+  };
+  
+  const clear = async (day) => {
+    if (absentDates.includes(day)) {
+      const updated = absentDates.filter(update => update !== day);
+      setAbsentDates(updated);
+      db.transaction(tx => {
+        tx.executeSql(
+          `DELETE FROM ${subject}absentDates WHERE date=?`,
+          [day],
+          (_, results) => console.log('Absent Data deleted:', results),
+          error => console.error('Error deleting data:', error)
+        );
+      });
+      Updated(0, -1, -1);
     }
-    if(presentDates.includes(day)){
-      const updated=presentDates.filter(update=>update!==day)
-      setPresentDates(updated)
-      await AsyncStorage.setItem(`${subject}presentDates`,JSON.stringify(updated));
-      Updated(-1,0,-1)
+  
+    if (presentDates.includes(day)) {
+      const updated = presentDates.filter(update => update !== day);
+      setPresentDates(updated);
+      db.transaction(tx => {
+        tx.executeSql(
+          `DELETE FROM ${subject}presentDates WHERE date=?`,
+          [day],
+          (_, results) => console.log('Present Data deleted:', results),
+          error => console.error('Error deleting data:', error)
+        );
+      });
+      Updated(-1, 0, -1);
     }
-    setShowDetails(false)
-  }
+  
+    setShowDetails(false);
+  };
+  
 
   return (
       <TouchableWithoutFeedback onPress={()=>setShowDetails(false)}>
