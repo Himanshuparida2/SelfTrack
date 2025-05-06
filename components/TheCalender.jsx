@@ -3,6 +3,8 @@ import { View, StyleSheet, Alert, TouchableWithoutFeedback, Text, TouchableOpaci
 import { Calendar } from 'react-native-calendars';
 import { AddingContext } from '../context/addingContext';
 import SQLite from 'react-native-sqlite-storage';
+import {useFocusEffect} from '@react-navigation/native';
+import { BackHandler } from 'react-native';
 
 function TheCalendar() {
   const [showDetails,setShowDetails]=useState(false);
@@ -11,6 +13,19 @@ function TheCalendar() {
   const [absentDates,setAbsentDates]=useState([])
   const {subject,setSubject}=useContext(AddingContext);
   const db=SQLite.openDatabase({name:'selftrack.db',location:'default'})
+  const handleBackButton = () => {
+    setShowDetails(false);
+    return true;
+  };
+  useFocusEffect(
+    React.useCallback(() => {
+      const backHandler = BackHandler.addEventListener(
+        'hardwareBackPress',
+        handleBackButton
+      );
+      return () => backHandler.remove();
+    }, [showDetails])
+  );
   useEffect(() => {
     async function getData() {
       db.transaction(tx => {

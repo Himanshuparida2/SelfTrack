@@ -1,12 +1,30 @@
-import React, { useContext, useEffect } from 'react'
-import { Dimensions, SafeAreaView, StyleSheet, Text } from 'react-native'
+import React, { useEffect, useRef } from 'react'
+import { BackHandler, Dimensions, SafeAreaView, StyleSheet, ToastAndroid } from 'react-native'
 import LoadView from './components/LoadView'
-import { AddingContext, AddingContextProvider } from './context/addingContext'
+import { AddingContextProvider } from './context/addingContext'
 import Orientation from 'react-native-orientation-locker'
+import { NavigationContainer} from '@react-navigation/native'
 
 const {width, height}=Dimensions.get('window')
 
 function App() {
+  const lastBackPress = useRef(0);
+  
+  useEffect(() => {
+    const onBackPress = () => {
+      const now = Date.now();
+      if (lastBackPress.current && now - lastBackPress.current < 2000) {
+        BackHandler.exitApp();
+        return true;
+      }
+      lastBackPress.current = now;
+      ToastAndroid.show('Press back again to exit', ToastAndroid.SHORT);
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => backHandler.remove();
+  }, []);
   useEffect(()=>{
     Orientation.lockToPortrait()
     return()=>{
@@ -16,9 +34,11 @@ function App() {
   console.log("App is Rendering")
   return (
     <SafeAreaView style={style.container}>
-      <AddingContextProvider>
-        <LoadView/>
-      </AddingContextProvider>
+      <NavigationContainer>
+        <AddingContextProvider>
+          <LoadView/>
+        </AddingContextProvider>
+      </NavigationContainer>
     </SafeAreaView>
   )
 }

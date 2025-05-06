@@ -3,6 +3,8 @@ import { Alert, Image, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpaci
 import { AddingContext } from '../context/addingContext';
 import cross from '../Images/close_icon.png';
 import SQLite from 'react-native-sqlite-storage';
+import {useFocusEffect} from '@react-navigation/native';
+import { BackHandler } from 'react-native';
 
 function AddSubject() {
   const [subjecttext, setSubjectText] = useState('');
@@ -25,6 +27,21 @@ function AddSubject() {
       }
     );
   });
+  const handleBackButton = () => {
+    setAddPressed(false);
+    setEdit(false);
+    setSubject('');
+    return true;
+  };
+  useFocusEffect(
+    React.useCallback(() => {
+      const backHandler = BackHandler.addEventListener(
+        'hardwareBackPress',
+        handleBackButton
+      );
+      return () => backHandler.remove();
+    }, [AddPressed])
+  );
   useEffect(() => {
     const setupData = async () => {
       if (subject) {

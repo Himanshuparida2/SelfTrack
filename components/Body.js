@@ -5,6 +5,8 @@ import { CircularProgress } from 'react-native-circular-progress'
 import SQLite from 'react-native-sqlite-storage'
 import TheCalendar from './TheCalender'
 import cross from '../Images/close_icon.png';
+import {useFocusEffect} from '@react-navigation/native';
+import { BackHandler } from 'react-native';
 import BannerAds from './BannerAds.js'
 
 function Body() {
@@ -28,6 +30,21 @@ function Body() {
             }
         )
     })
+    const handleBackButton = () => {
+        setOpenCalender(false);
+        setSubject('');
+        setShowDetails(false);
+        return true;
+      };
+      useFocusEffect(
+        React.useCallback(() => {
+          const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            handleBackButton
+          );
+          return () => backHandler.remove();
+        }, [openCalender])
+      );
     useEffect(()=>{
         const response=async()=>{
             try{
@@ -256,6 +273,6 @@ const styles=new StyleSheet.create({
         height:20,
         position:'absolute',
         right:'7%',
-        marginTop:'20%'
+        marginTop:'19%'
     },
 })
