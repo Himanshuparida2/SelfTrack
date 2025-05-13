@@ -111,14 +111,8 @@ function Body() {
         return i-1
     }
     const handleLongPress=(subject)=>{
-        if(detailSubject===subject){
-            setDetailSubject(null)
-            setShowDetails(false)
-        }
-        else{
             setDetailSubject(subject)
             setShowDetails(true)
-        }
     }
 
     const OpenCalender=(name)=>{
@@ -133,11 +127,11 @@ function Body() {
     
   return (
         <SafeAreaView style={[styles.container,{backgroundColor:background.background_color,opacity:background.opacity,backgroundColor:opensidebar?'grey':'white'}]}>
-    <TouchableWithoutFeedback onPress={()=>{setDetailSubject(null);setOpenSideBar(false);setAddPressed(false)}}>
+        <TouchableWithoutFeedback onPress={()=>{setDetailSubject(null);setOpenSideBar(false);setAddPressed(false)}}>
         <ScrollView style={styles.ScrollView} contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={true}>
             {sub.length > 0 ? (sub.map((subject, index) =>(
-            <View key={index} style={[styles.subjects]}>
-                <TouchableOpacity onPress={()=>{OpenCalender(subject.name)}} onLongPress={()=>{handleLongPress(subject.name)}}>
+            <TouchableOpacity onPress={()=>{OpenCalender(subject.name);setDetailSubject(false)}} onLongPress={()=>{handleLongPress(subject.name)}} key={index} style={[styles.subjects]}>
+                <View >
                     {(detailSubject)==subject.name?(
                         <View style={styles.option}>
                             <TouchableOpacity style={styles.options} onPress={()=>HandleEdit(subject.name)}><Text style={styles.optionText}>Edit</Text></TouchableOpacity>
@@ -152,8 +146,8 @@ function Body() {
                 <Text style={styles.optional}>{subject.percent >= 75 ? `Can Skip :${bunk(subject.present,subject.totalclass,subject.criteria)}` : `Need More : ${reqclass(subject.present, subject.totalclass, subject.criteria)}`}</Text>
                 <Text style={[styles.percentage,{fontSize: Math.floor(subject.percent) === 100 ? 11 : (Math.floor(subject.percent) < 10 ? 15 : 13),right: Math.floor(subject.percent) < 10 ? '7%' : (Math.floor(subject.percent) === 100 ? '6.3%' : '6.5%'),top:Math.floor(subject.percent)<10?'109%':'115%'}]}>{Math.floor(subject.percent)}%</Text>
                 <CircularProgress width={10} size={50} fill={subject.percent} rotation={0} tintColor={subject.percent>=75?'#10f85a':'#f34b0c'} backgroundColor='black' arcSweepAngle={360} lineCap='round' showsText={true} style={styles.bar}/>
-                </TouchableOpacity>
-           </View>
+                </View>
+           </TouchableOpacity>
         ))):null}
         </ScrollView>
         </TouchableWithoutFeedback>
@@ -193,7 +187,8 @@ const styles=new StyleSheet.create({
         shadowRadius:15,
         shadowOpacity:0.3,
         elevation:1.5,
-        position:'relative'
+        position:'relative',
+        padding:2,
     },
     subjectName:{
         fontSize:20,

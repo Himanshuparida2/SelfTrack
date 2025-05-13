@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import selftrack from '../Images/SELFTRACK_FULL_LOGO.png';
 import hamburger from '../Images/hamburger.png'
@@ -8,7 +8,7 @@ import { AddingContext } from '../context/addingContext';
 
 function TopBar() {
 
-  const {AddPressed,setAddPressed,setBackground,setOpenSideBar,opensidebar}=useContext(AddingContext)
+  const {AddPressed,setSubject,setBackground,setAddPressed,setOpenSideBar}=useContext(AddingContext)
   useEffect(() => {
     if (AddPressed) {
       setBackground({background_color: 'black', opacity: 0.2});
@@ -24,7 +24,7 @@ function TopBar() {
         <TouchableOpacity style={styles.hamburger_container} onPress={()=>setOpenSideBar(true)}>
           <Image source={hamburger} style={styles.hamburger}/>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.addIcon} onPress={()=>{setAddPressed(true)}}>
+        <TouchableOpacity style={styles.addIcon} onPress={()=>{setAddPressed(true),setSubject('')}}>
           <Image source={add_icon} style={styles.addIcon}/>
         </TouchableOpacity>
       </View>
