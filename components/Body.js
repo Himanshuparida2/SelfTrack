@@ -16,6 +16,7 @@ function Body() {
     const [detailSubject,setDetailSubject]=useState(null)
     const [showDetails,setShowDetails]=useState(false)
     const [openCalender,setOpenCalender]=useState()
+    let percent;
 
     const db=SQLite.openDatabase({name:'selftrack.db',location:'default'})
     db.transaction(tx=>{
@@ -33,7 +34,7 @@ function Body() {
     const handleBackButton = () => {
         setOpenCalender(false);
         setSubject('');
-        setShowDetails(false);
+        hideDetails()
         return true;
       };
       useFocusEffect(
@@ -90,6 +91,9 @@ function Body() {
         }
     }
     const reqclass=(present,total,criteria)=>{
+        if(total==0){
+            return 0
+        }
         let i=present;
         while(true){
             if(((i/total)*100)>=criteria){
@@ -100,6 +104,9 @@ function Body() {
         }
     }
     const bunk=(present,total,criteria)=>{
+        if(total==0){
+            return 0
+        }
         let i=0;
         while(true){
             total++
@@ -114,7 +121,10 @@ function Body() {
             setDetailSubject(subject)
             setShowDetails(true)
     }
-
+    const hideDetails=()=>{
+        setDetailSubject(null)
+        setShowDetails(false)
+    }
     const OpenCalender=(name)=>{
        setOpenCalender(true)
        setSubject(name)
@@ -124,18 +134,25 @@ function Body() {
         setEdit(true)
         setSubject(name)
     }
+    const handlepercent=(present,total)=>{
+        percent=(present/total)*100;
+        if(percent>0){
+            return percent
+        }
+        return 0
+    }
     
   return (
         <SafeAreaView style={[styles.container,{backgroundColor:background.background_color,opacity:background.opacity,backgroundColor:opensidebar?'grey':'white'}]}>
-        <TouchableWithoutFeedback onPress={()=>{setDetailSubject(null);setOpenSideBar(false);setAddPressed(false)}}>
+        <TouchableWithoutFeedback onPress={()=>{hideDetails(),setDetailSubject(null);setOpenSideBar(false);setAddPressed(false)}}>
         <ScrollView style={styles.ScrollView} contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={true}>
             {sub.length > 0 ? (sub.map((subject, index) =>(
-            <TouchableOpacity onPress={()=>{OpenCalender(subject.name);setDetailSubject(false)}} onLongPress={()=>{handleLongPress(subject.name)}} key={index} style={[styles.subjects]}>
-                <View >
+            <TouchableOpacity onPress={()=>{OpenCalender(subject.name);hideDetails()}} onLongPress={()=>{handleLongPress(subject.name)}} key={index} style={[styles.subjects]}>
+                <View>
                     {(detailSubject)==subject.name?(
                         <View style={styles.option}>
-                            <TouchableOpacity style={styles.options} onPress={()=>HandleEdit(subject.name)}><Text style={styles.optionText}>Edit</Text></TouchableOpacity>
-                            <TouchableOpacity style={styles.options} onPress={()=>removeSub(subject.name)}><Text style={styles.optionText}>Delete</Text></TouchableOpacity>
+                            <TouchableOpacity style={styles.options} onPress={()=>{HandleEdit(subject.name);setDetailSubject(false)}}><Text style={styles.optionText}>Edit</Text></TouchableOpacity>
+                            <TouchableOpacity style={styles.options} onPress={()=>{removeSub(subject.name);setDetailSubject(false)}}><Text style={styles.optionText}>Delete</Text></TouchableOpacity>
                         </View>
                     ):null}
                 <Text style={styles.subjectName}>{subject.name}</Text>
@@ -143,9 +160,9 @@ function Body() {
                 <Text style={styles.absent}>Absent : {subject.absent}</Text>
                 <Text style={styles.total}>Total : {subject.totalclass}</Text>
                 <Text style={styles.criteria}>Criteria : {subject.criteria}%</Text>
-                <Text style={styles.optional}>{subject.percent >= 75 ? `Can Skip :${bunk(subject.present,subject.totalclass,subject.criteria)}` : `Need More : ${reqclass(subject.present, subject.totalclass, subject.criteria)}`}</Text>
-                <Text style={[styles.percentage,{fontSize: Math.floor(subject.percent) === 100 ? 11 : (Math.floor(subject.percent) < 10 ? 15 : 13),right: Math.floor(subject.percent) < 10 ? '7%' : (Math.floor(subject.percent) === 100 ? '6.3%' : '6.5%'),top:Math.floor(subject.percent)<10?'109%':'115%'}]}>{Math.floor(subject.percent)}%</Text>
-                <CircularProgress width={10} size={50} fill={subject.percent} rotation={0} tintColor={subject.percent>=75?'#10f85a':'#f34b0c'} backgroundColor='black' arcSweepAngle={360} lineCap='round' showsText={true} style={styles.bar}/>
+                <Text style={styles.optional}>{handlepercent(subject.present,subject.totalclass) >= 75 ? `Can Skip :${bunk(subject.present,subject.totalclass,subject.criteria)}` : `Need More : ${reqclass(subject.present, subject.totalclass, subject.criteria)}`}</Text>
+                <Text style={[styles.percentage,{fontSize: Math.floor(handlepercent(subject.present,subject.totalclass)) === 100 ? 11 : (Math.floor(handlepercent(subject.present,subject.totalclass)) < 10 ? 15 : 13),right: Math.floor(handlepercent(subject.present,subject.totalclass)) < 10 ? '7%' : (Math.floor(handlepercent(subject.present,subject.totalclass)) === 100 ? '6.3%' : '6.5%'),top:Math.floor(handlepercent(subject.present,subject.totalclass))<10?'109%':'115%'}]}>{Math.floor(handlepercent(subject.present,subject.totalclass))}%</Text>
+                <CircularProgress width={10} size={50} fill={handlepercent(subject.present,subject.totalclass)} rotation={0} tintColor={handlepercent(subject.present,subject.totalclass)>=75?'#10f85a':'#f34b0c'} backgroundColor='black' arcSweepAngle={360} lineCap='round' showsText={true} style={styles.bar}/>
                 </View>
            </TouchableOpacity>
         ))):null}

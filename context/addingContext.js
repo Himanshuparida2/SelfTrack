@@ -5,6 +5,7 @@ export const AddingContextProvider=({children}) => {
     const [AddPressed,setAddPressed]=useState(false);
     const [subject,setSubject]=useState('')
     const [edit,setEdit]=useState(false)
+    const [update,setUpdate]=useState(false)
     const [opensidebar,setOpenSideBar]=useState(false)
     const [background, setBackground] = useState({
             background_color: 'white',

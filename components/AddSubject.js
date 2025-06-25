@@ -85,10 +85,14 @@ function AddSubject() {
   let absent = parseInt(subjectabsent, 10);
   let totalclass = parseInt(subjectclass, 10);
   let criteria = parseInt(subjectcriteria, 10);
-  let percentage = totalclass > 0 ? (present / totalclass) * 100 : 0;
 
   const addSubject = async () => {
-    if (isNaN(present) || isNaN(absent) || isNaN(totalclass) || isNaN(criteria)) {
+    if(isNaN(present) || isNaN(absent) || isNaN(totalclass)){
+      present = 0;
+      absent = 0;
+      totalclass = 0;
+    }
+    if (isNaN(criteria)) {
       Alert.alert('Please Enter Valid Numbers for Classes and Criteria');
       return;
     }
@@ -101,8 +105,8 @@ function AddSubject() {
       if (edit) {
         db.transaction(tx => {
           tx.executeSql(
-            'UPDATE UserSubject SET name=?, absent=?, totalclass=?, present=?, criteria=?, percent=? WHERE name=?',
-            [subjecttext, subjectabsent, subjectclass, subjectpresent, subjectcriteria, percentage, subject],
+            'UPDATE UserSubject SET name=?, absent=?, totalclass=?, present=?, criteria=? WHERE name=?',
+            [subjecttext, subjectabsent, subjectclass, subjectpresent, subjectcriteria, subject],
             () => {
               console.log('Data updated successfully');
             },
@@ -115,8 +119,8 @@ function AddSubject() {
       } else {
         db.transaction(tx=>{
           tx.executeSql(
-          'INSERT INTO UserSubject (name, absent, totalclass, present, criteria, percent) VALUES (?, ?, ?, ?, ?, ?)',
-          [subjecttext, subjectabsent, subjectclass, subjectpresent, subjectcriteria, percentage],
+          'INSERT INTO UserSubject (name, absent, totalclass, present, criteria) VALUES (?, ?, ?, ?, ?)',
+          [subjecttext, subjectabsent, subjectclass, subjectpresent, subjectcriteria],
           () => {
             console.log('Data inserted successfully');
           },
@@ -137,6 +141,7 @@ function AddSubject() {
       console.error(e);
       Alert.alert('Some Error Occurred!!');
     }
+    handleBackButton();
   };
 
   return (
