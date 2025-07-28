@@ -1,0 +1,15 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.selftrack.app",
+      "sha256_cert_fingerprints": [
+        "F3:DA:6C:07:C3:19:54:BF:01:A9:7B:03:4D:B0:05:11:CF:1A:34:F4:FD:0E:A3:A0:9C:30:EE:16:5E:E1:3D:22"
+      ]
+    }
+  }
+]
