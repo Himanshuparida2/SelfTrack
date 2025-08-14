@@ -246,7 +246,7 @@ const styles=new StyleSheet.create({
     percentage:{
         position:'absolute',
         marginRight:'0.5%',
-        marginTop:'140%',
+        marginTop:'155%',
         fontSize:12,
         fontWeight:600
     },
