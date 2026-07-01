@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 import { AddingContext } from '../context/addingContext'
 import { CircularProgress } from 'react-native-circular-progress'
 import SQLite from 'react-native-sqlite-storage'
@@ -8,6 +8,7 @@ import cross from '../Images/close_icon.png';
 import {useFocusEffect} from '@react-navigation/native';
 import { BackHandler } from 'react-native';
 import BannerAds from './BannerAds.js'
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 function Body() {
     const {AddPressed,background,setEdit,setSubject,setAddPressed,opensidebar,setOpenSideBar}=useContext(AddingContext)
